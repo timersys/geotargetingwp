@@ -1,0 +1,24 @@
+{
+    "name": "timersys/geotargetingwp",
+    "description": "Geotargeting WP PHP package",
+    "keywords": ["geotargeting", "php", "wordpress"],
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Damian Logghe",
+            "email": "info@timersys.com"
+        }
+    ],
+    "type": "project",
+    "require": {
+		"php": ">=5.4"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "5.2.*"
+    },
+	"autoload": {
+        "psr-4": {
+            "Timersys\\GeotargetingWP\\": "src/"
+        }
+    }
+}
