@@ -1,7 +1,7 @@
 GeotargetingWP
 =========================
 
-PHP package with the neccesary files to play with [GeotargetingWP](https://geotargetingwp.com) API
+PHP package with the necessary files to play with [GeotargetingWP](https://geotargetingwp.com) API
 
 Features
 --------
