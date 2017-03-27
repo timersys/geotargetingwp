@@ -2,7 +2,7 @@
     "name": "timersys/geotargetingwp",
     "description": "Geotargeting WP PHP package",
     "keywords": ["geotargeting", "php", "wordpress"],
-    "license": "GPL",
+    "license": "GPL-3.0",
     "authors": [
         {
             "name": "Damian Logghe",
