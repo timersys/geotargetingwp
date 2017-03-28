@@ -3,6 +3,7 @@ use GeotWP\Exception\AddressNotFoundException;
 use GeotWP\Exception\InvalidIPException;
 use GeotWP\Exception\InvalidLicenseException;
 use GeotWP\Exception\OutofCreditsException;
+use GeotWP\Record\GeotRecord;
 use GuzzleHttp\Client;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
@@ -85,7 +86,7 @@ class GeotargetingWP{
 			'ip' => $this->ip
 		]);
 		$this->validateResponse( $res );
-		return $this->cleanReponse( $res );
+		return $this->cleanResponse( $res );
 	}
 
 
@@ -181,13 +182,14 @@ class GeotargetingWP{
 
 	/**
 	 * For now it just convert json data to object
+	 * and create GeotRecord class
 	 * @param $res
 	 *
-	 * @return mixed
+	 * @return GeotRecord
 	 */
-	private function cleanReponse( $res ) {
-		$body = $res->getBody();
-		return json_decode($body);
+	private function cleanResponse( $res ) {
+		$response = json_decode($res->getBody());
+		return new GeotRecord( $response );
 	}
 
 
