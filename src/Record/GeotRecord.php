@@ -3,7 +3,7 @@ namespace GeotWP\Record;
 
 class GeotRecord {
 
-	private $valid_classes = [
+	private static $valid_records = [
 		'city',
 		'country',
 		'continent',
@@ -17,11 +17,18 @@ class GeotRecord {
 	public function __construct( $response ) {
 		if( !empty( $response ) ) {
 			foreach ( $response as $class => $data ) {
-				if( in_array( $class, $this->valid_classes ) ){
+				if( in_array( $class, self::$valid_records ) ){
 					$record_name = ucfirst($class);
 					$this->$class = new $record_name($data);
 				}
 			}
 		}
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public static function getValidRecords(){
+		return self::$valid_records;
 	}
 }
