@@ -42,7 +42,3 @@ function is_session_started()
 	}
 	return FALSE;
 }
-
-function getCountryByIsoCode( $iso_code ){
-
-}
