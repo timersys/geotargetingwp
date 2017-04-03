@@ -9,6 +9,7 @@ use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class GeotargetingWP{
 
+	const ENDPOINT = 'https://geotargetingwp.com/api/v1/';
 	/**
 	 * @var Client
 	 */
@@ -31,12 +32,13 @@ class GeotargetingWP{
 	 * @throws InvalidLicenseException
 	 */
 	public function __construct( $acces_token, $args = array() ) {
+
 		if( empty( $acces_token ) )
 			throw new InvalidLicenseException('License is missing');
 
 		$this->client = new Client(
 			[
-				'base_uri' => 'https://geotargetingwp.com/api/v1/',
+				'base_uri' => self::ENDPOINT,
 				'headers' => [
 					'Content-Type' => 'application/json'
 				],
@@ -66,7 +68,7 @@ class GeotargetingWP{
 		$this->initUserData();
 
 		// Start sessions if needed
-		if( is_session_started() === FALSE && ! $this->opts['disable_sessions'] )
+		if( is_session_started() === FALSE && ! $this->opts['cache_mode'] )
 			session_start();
 
 		// Easy debug
@@ -78,7 +80,7 @@ class GeotargetingWP{
 			return $this->setUserData('geot_cookie' , $_COOKIE[$this->opts['cookie_name']] );
 
 		// If we already calculated on session return (if we are not calling by IP & if cache mode (sessions) is turned on)
-		if( empty( $ip ) && ! $this->opts['disable_sessions'] && !empty ( $_SESSION['geot_data'] ) && ! $this->opts['debug_mode'] )
+		if( empty( $ip ) && ! $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) && ! $this->opts['debug_mode'] )
 			return  unserialize( $_SESSION['geot_data'] ) ;
 
 		// check for crawlers
@@ -90,6 +92,7 @@ class GeotargetingWP{
 		$res = $this->client->request('GET', '', [
 			'ip' => $this->ip
 		]);
+
 		$this->validateResponse( $res );
 		return $this->cleanResponse( $res );
 	}
