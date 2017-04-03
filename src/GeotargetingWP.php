@@ -26,9 +26,14 @@ class GeotargetingWP{
 	 * Constructor
 	 *
 	 * @param $acces_token
-	 * @param $args
+	 * @param array $args
+	 *
+	 * @throws InvalidLicenseException
 	 */
 	public function __construct( $acces_token, $args = array() ) {
+		if( empty( $acces_token ) )
+			throw new InvalidLicenseException('License is missing');
+
 		$this->client = new Client(
 			[
 				'base_uri' => 'https://geotargetingwp.com/api/v1/',
