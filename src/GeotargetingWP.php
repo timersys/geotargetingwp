@@ -200,5 +200,20 @@ class GeotargetingWP{
 		return new GeotRecord( $response );
 	}
 
+	public static function checkLicense( $license ) {
+		$client = new Client(
+			[
+				'base_uri' => self::ENDPOINT . 'check-license',
+				'headers' => [
+					'Content-Type' => 'application/json'
+				],
+				'defaults' => [
+					'license' =>  $license
+				]
+			]
+		);
+		$response = $client->request('GET');
+		return $response;
+	}
 
 }
