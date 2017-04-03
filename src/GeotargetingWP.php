@@ -102,7 +102,7 @@ class GeotargetingWP{
 	private function set_defaults( $args ) {
 
 		$this->opts = [
-			'disable_sessions'  => false, // cache mode turned on by default
+			'cache_mode'        => false, // cache mode turned on by default
 			'debug_mode'        => false, // similar to disable sessions but also invalidates cookies
 			'bots_country'      => '', // a default country to return if a bot is detected
 			'cookie_name'       => 'geot_cookie' // cookie_name to store country iso code
