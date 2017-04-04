@@ -13,9 +13,11 @@ class GeotargetingWP{
 	/**
 	 * @var Client
 	 */
-	private $client;
+	private static $client;
 
 	private $ip;
+
+	private $license;
 
 	private $user_data;
 	/**
@@ -36,17 +38,7 @@ class GeotargetingWP{
 		if( empty( $acces_token ) )
 			throw new InvalidLicenseException('License is missing');
 
-		$this->client = new Client(
-			[
-				'base_uri' => self::ENDPOINT,
-				'headers' => [
-					'Content-Type' => 'application/json'
-				],
-				'defaults' => [
-					'license' =>  $acces_token
-				]
-			]
-		);
+		$this->license = $acces_token;
 		$this->ip = getUserIP();
 		$this->set_defaults($args);
 
@@ -89,7 +81,7 @@ class GeotargetingWP{
 			return $this->setUserData('country' , $this->opts['bots_country']);
 
 		// time to call api
-		$res = $this->client->request('GET', '', [
+		$res = self::client()->request('GET', '', [
 			'ip' => $this->ip
 		]);
 
@@ -200,20 +192,33 @@ class GeotargetingWP{
 		return new GeotRecord( $response );
 	}
 
+	/**
+	 * Helper function that let users check if license is valid
+	 * @param $license
+	 *
+	 * @return array|mixed|\Psr\Http\Message\ResponseInterface
+	 */
 	public static function checkLicense( $license ) {
-		$client = new Client(
+		$response = self::client()->request('GET','check-license', [ 'query' => [ 'license' => $license ] ] );
+		if( $response->getStatusCode() != '200')
+			return ['error' => 'Something wrong happened'];
+		$response = json_decode($response->getBody());
+		return $response;
+	}
+
+	/**
+	 * Create a client instance
+	 * @return Client
+	 */
+	private static function client() {
+		return new Client(
 			[
-				'base_uri' => self::ENDPOINT . 'check-license',
+				'base_uri' => self::ENDPOINT,
 				'headers' => [
 					'Content-Type' => 'application/json'
-				],
-				'defaults' => [
-					'license' =>  $license
 				]
 			]
 		);
-		$response = $client->request('GET');
-		return $response;
 	}
 
 }
