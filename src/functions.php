@@ -31,8 +31,7 @@ function getUserIP() {
  * Check if session is running
  * @return bool
  */
-function is_session_started()
-{
+function is_session_started() {
 	if ( php_sapi_name() !== 'cli' ) {
 		if ( version_compare(phpversion(), '5.4.0', '>=') ) {
 			return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
@@ -41,4 +40,36 @@ function is_session_started()
 		}
 	}
 	return FALSE;
+}
+
+/**
+ * Gets the value of an environment variable.
+ *
+ * @param  string  $key
+ * @param  mixed   $default
+ * @return mixed
+ */
+function env($key, $default = null) {
+	$value = getenv($key);
+
+	if ($value === false)
+		return $default;
+
+	switch (strtolower($value)) {
+		case 'true':
+		case '(true)':
+			return true;
+		case 'false':
+		case '(false)':
+			return false;
+		case 'empty':
+		case '(empty)':
+			return '';
+		case 'null':
+		case '(null)':
+			return;
+	}
+
+	return $value;
+
 }

@@ -1,15 +1,17 @@
 <?php namespace GeotWP;
 use GeotWP\Exception\AddressNotFoundException;
+use GeotWP\Exception\GeotRequestException;
 use GeotWP\Exception\InvalidIPException;
 use GeotWP\Exception\InvalidLicenseException;
 use GeotWP\Exception\OutofCreditsException;
 use GeotWP\Record\GeotRecord;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\RequestException;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class GeotargetingWP{
 
-	const ENDPOINT = 'https://geotargetingwp.com/api/v1/';
 	/**
 	 * @var Client
 	 */
@@ -60,7 +62,7 @@ class GeotargetingWP{
 		$this->initUserData();
 
 		// Start sessions if needed
-		if( is_session_started() === FALSE && ! $this->opts['cache_mode'] )
+		if( is_session_started() === FALSE && $this->opts['cache_mode'] )
 			session_start();
 
 		// Easy debug
@@ -72,7 +74,7 @@ class GeotargetingWP{
 			return $this->setUserData('geot_cookie' , $_COOKIE[$this->opts['cookie_name']] );
 
 		// If we already calculated on session return (if we are not calling by IP & if cache mode (sessions) is turned on)
-		if( empty( $ip ) && ! $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) && ! $this->opts['debug_mode'] )
+		if( empty( $ip ) && $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) && ! $this->opts['debug_mode'] )
 			return  unserialize( $_SESSION['geot_data'] ) ;
 
 		// check for crawlers
@@ -81,9 +83,16 @@ class GeotargetingWP{
 			return $this->setUserData('country' , $this->opts['bots_country']);
 
 		// time to call api
-		$res = self::client()->request('GET', '', [
-			'ip' => $this->ip
-		]);
+		try{
+			$res = self::client()->request('GET', '', [
+				'ip' => $this->ip
+			]);
+		} catch ( RequestException $e) {
+			if ($e->hasResponse()) {
+				echo Psr7\str($e->getResponse());
+				throw new GeotRequestException($e->getResponse());
+			}
+		}
 
 		$this->validateResponse( $res );
 		return $this->cleanResponse( $res );
@@ -188,7 +197,7 @@ class GeotargetingWP{
 	 * @return GeotRecord
 	 */
 	private function cleanResponse( $res ) {
-		$response = json_decode($res->getBody());
+		$response = json_decode((string)$res->getBody());
 		return new GeotRecord( $response );
 	}
 
@@ -200,9 +209,29 @@ class GeotargetingWP{
 	 */
 	public static function checkLicense( $license ) {
 		$response = self::client()->request('GET','check-license', [ 'query' => [ 'license' => $license ] ] );
+
 		if( $response->getStatusCode() != '200')
 			return ['error' => 'Something wrong happened'];
-		$response = json_decode($response->getBody());
+
+		$response = (string)$response->getBody();
+		return $response;
+	}
+
+	/**
+	 * Helper function that get cities for given country
+	 *
+	 * @param $iso_code
+	 *
+	 * @return array|mixed|\Psr\Http\Message\ResponseInterface
+	 *
+	 */
+	public static function getCities( $iso_code ) {
+		$response = self::client()->request('GET','cities', [ 'query' => [ 'iso_code' => $iso_code ] ] );
+
+		if( $response->getStatusCode() != '200')
+			return ['error' => 'Something wrong happened'];
+
+		$response = (string)$response->getBody();
 		return $response;
 	}
 
@@ -213,7 +242,8 @@ class GeotargetingWP{
 	private static function client() {
 		return new Client(
 			[
-				'base_uri' => self::ENDPOINT,
+				'base_uri' => env('GEOT_ENDPOINT','https://geotargetingwp.com/api/v1/'),
+				'http_errors' => false,
 				'headers' => [
 					'Content-Type' => 'application/json'
 				]
