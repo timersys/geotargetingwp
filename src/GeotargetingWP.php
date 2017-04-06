@@ -48,9 +48,11 @@ class GeotargetingWP{
 
 	/**
 	 * Main function that return User data
+	 *
 	 * @param string $ip
 	 *
 	 * @return mixed
+	 * @throws GeotRequestException
 	 */
 	public function getData( $ip = "" ){
 		if( ! empty( $ip ) )
