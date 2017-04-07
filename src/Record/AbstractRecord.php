@@ -8,7 +8,7 @@ namespace GeotWP\Record;
  */
 abstract class AbstractRecord {
 
-	public $data;
+	private $data;
 
 	/**
 	 * Valid locales
@@ -32,27 +32,29 @@ abstract class AbstractRecord {
 	}
 
 	/**
+	 * Magic method to get Record properties
+	 * @param $name
+	 *
+	 * @return null
+	 */
+	public function __get($name) {
+		if( $name === 'name' )
+			return $this->name();
+
+		if ( property_exists($this->data, $name) ) {
+			return $this->data->$name;
+		}
+
+		return null;
+	}
+	/**
 	 * Return name in default locale
 	 * @return string
 	 */
 	public function name() {
 		if( empty($this->data->names) )
-			return '';
-		return isset( $this->data->names[$this->default_locale] ) ? $this->data->names[$this->default_locale] : $this->data->names[0];
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function names() {
-		return $this->data->names;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function iso_code() {
-		return isset( $this->data->iso_code ) ? $this->data->iso_code : '';
+			return null;
+		return isset( $this->data->names->{$this->default_locale} ) ? $this->data->names->{$this->default_locale} : $this->data->names[0];
 	}
 
 }
