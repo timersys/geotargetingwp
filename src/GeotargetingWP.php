@@ -86,8 +86,11 @@ class GeotargetingWP{
 
 		// time to call api
 		try{
-			$res = self::client()->request('GET', '', [
-				'ip' => $this->ip
+			$res = self::client()->request('GET', 'data', [
+				'query' => [
+					'ip' => $this->ip,
+					'license' => $this->license,
+				]
 			]);
 		} catch ( RequestException $e) {
 			if ($e->hasResponse()) {
@@ -178,13 +181,13 @@ class GeotargetingWP{
 		$code = $res->getStatusCode();
 		switch ($code) {
 			case '404':
-				throw new AddressNotFoundException($res->getReasonPhrase());
+				throw new AddressNotFoundException((string)$res->getBody());
 			case '500':
-				throw new InvalidIPException($res->getReasonPhrase());
+				throw new InvalidIPException((string)$res->getBody());
 			case '401':
-				throw new InvalidLicenseException($res->getReasonPhrase());
+				throw new InvalidLicenseException((string)$res->getBody());
 			case '403':
-				throw new OutofCreditsException($res->getReasonPhrase());
+				throw new OutofCreditsException((string)$res->getBody());
 			case '200':
 			default:
 				break;
