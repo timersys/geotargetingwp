@@ -18,7 +18,7 @@ class GeotRecord {
 		if( !empty( $response ) ) {
 			foreach ( $response as $class => $data ) {
 				if( in_array( $class, self::$valid_records ) ){
-					$record_name = ucfirst($class);
+					$record_name = 'GeotWP\Record\\'.ucfirst($class);
 					$this->$class = new $record_name($data);
 				}
 			}
