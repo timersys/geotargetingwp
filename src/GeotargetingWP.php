@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
+use stdClass;
 
 class GeotargetingWP{
 
@@ -73,7 +74,7 @@ class GeotargetingWP{
 
 		// If user set cookie and not in debug mode
 		if(  ! $this->opts['debug_mode']  &&  ! empty( $_COOKIE[$this->opts['cookie_name']] ) )
-			return $this->setUserData('geot_cookie' , $_COOKIE[$this->opts['cookie_name']] );
+			return $this->setUserData('country' , 'iso_code', $_COOKIE[$this->opts['cookie_name']] );
 
 		// If we already calculated on session return (if we are not calling by IP & if cache mode (sessions) is turned on)
 		if( empty( $ip ) && $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) && ! $this->opts['debug_mode'] )
@@ -82,7 +83,7 @@ class GeotargetingWP{
 		// check for crawlers
 		$CD = new CrawlerDetect();
 		if( $CD->isCrawler() && ! empty( $this->opts['bots_country'] ) )
-			return $this->setUserData('country' , $this->opts['bots_country']);
+			return $this->setUserData('country' , 'iso_code', $this->opts['bots_country']);
 
 		// time to call api
 		try{
@@ -144,26 +145,30 @@ class GeotargetingWP{
 
 
 	/**
-	 * Init empty array of user data
+	 * Init empty Object of user data
 	 */
 	private function initUserData() {
-		$this->user_data =  [
-			'continent' => '',
-			'country' => '',
-			'state'   => '',
-			'city'    => '',
+		$this->user_data =  (object) [
+			'continent' => new StdClass(),
+			'country' =>  new StdClass(),
+			'state'   =>  new StdClass(),
+			'city'    =>  new StdClass(),
 		];
 	}
 
 	/**
 	 * Add new values or update in user data
+	 *
 	 * @param $key
+	 * @param $property
 	 * @param $value
 	 *
 	 * @return mixed
 	 */
-	private function setUserData( $key, $value ) {
-		$this->user_data[$key] = $value;
+	private function setUserData( $key, $property, $value ) {
+		$this->initUserData();
+		$this->user_data->$key->$property = $value;
+		$this->user_data = new GeotRecord($this->user_data);
 		return $this->user_data;
 	}
 
