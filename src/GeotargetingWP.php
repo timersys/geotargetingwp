@@ -247,7 +247,7 @@ class GeotargetingWP{
 	private static function client() {
 		return new Client(
 			[
-				'base_uri' => env('GEOT_ENDPOINT','https://geotargetingwp.com/api/v1/'),
+				'base_uri' => self::api_url(),
 				'http_errors' => false,
 				'headers' => [
 					'Content-Type' => 'application/json'
@@ -256,4 +256,11 @@ class GeotargetingWP{
 		);
 	}
 
+	/**
+	 * Return API URL
+	 * @return mixed
+	 */
+	public static function api_url() {
+		return env('GEOT_ENDPOINT','https://geotargetingwp.com/api/v1/');
+	}
 }
