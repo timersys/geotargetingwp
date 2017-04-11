@@ -19,6 +19,7 @@ class GeotargetingWP{
 	private static $client;
 
 	private $ip;
+	private $cache_key;
 
 	private $license;
 
@@ -59,8 +60,10 @@ class GeotargetingWP{
 		if( ! empty( $ip ) )
 			$this->ip = $ip;
 
-		if( ! empty ( $this->user_data ) && empty( $ip ) )
-			return $this->user_data;
+		$this->cache_key = md5( $this->ip );
+
+		if( ! empty ( $this->user_data[$this->cache_key] ) )
+			return $this->user_data[$this->cache_key];
 
 		$this->initUserData();
 
@@ -77,8 +80,10 @@ class GeotargetingWP{
 			return $this->setUserData('country' , 'iso_code', $_COOKIE[$this->opts['cookie_name']] );
 
 		// If we already calculated on session return (if we are not calling by IP & if cache mode (sessions) is turned on)
-		if( empty( $ip ) && $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) && ! $this->opts['debug_mode'] )
-			return  unserialize( $_SESSION['geot_data'] ) ;
+		if( $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) ){
+			$this->user_data[$this->cache_key] = new GeotRecord(unserialize( $_SESSION['geot_data'] ) );
+			return $this->user_data[$this->cache_key];
+		}
 
 		// check for crawlers
 		$CD = new CrawlerDetect();
@@ -148,7 +153,7 @@ class GeotargetingWP{
 	 * Init empty Object of user data
 	 */
 	private function initUserData() {
-		$this->user_data =  (object) [
+		$this->user_data[$this->cache_key] =  (object) [
 			'continent' => new StdClass(),
 			'country' =>  new StdClass(),
 			'state'   =>  new StdClass(),
@@ -167,9 +172,9 @@ class GeotargetingWP{
 	 */
 	private function setUserData( $key, $property, $value ) {
 		$this->initUserData();
-		$this->user_data->$key->$property = $value;
-		$this->user_data = new GeotRecord($this->user_data);
-		return $this->user_data;
+		$this->user_data[$this->cache_key]->$key->$property = $value;
+		$this->user_data[$this->cache_key] = new GeotRecord($this->user_data[$this->cache_key]);
+		return $this->user_data[$this->cache_key];
 	}
 
 	/**
@@ -200,15 +205,20 @@ class GeotargetingWP{
 	}
 
 	/**
-	 * For now it just convert json data to object
+	 * Save user data, save to session and create record
 	 * and create GeotRecord class
 	 * @param $res
 	 *
 	 * @return GeotRecord
 	 */
 	private function cleanResponse( $res ) {
-		$response = json_decode((string)$res->getBody());
-		return new GeotRecord( $response );
+		$response                           = json_decode((string)$res->getBody());
+
+		if ( $this->opts['cache_mode'] )
+			$_SESSION['geot_data'] = serialize( $response );
+		$this->user_data[$this->cache_key]  = new GeotRecord( $response );
+
+		return $this->user_data[$this->cache_key];
 	}
 
 	/**
