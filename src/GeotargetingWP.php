@@ -59,7 +59,7 @@ class GeotargetingWP{
 	public function getData( $ip = "" ){
 		if( ! empty( $ip ) )
 			$this->ip = $ip;
-
+		
 		$this->cache_key = md5( $this->ip );
 
 		if( ! empty ( $this->user_data[$this->cache_key] ) )
@@ -80,10 +80,9 @@ class GeotargetingWP{
 			return $this->setUserData('country' , 'iso_code', $_COOKIE[$this->opts['cookie_name']] );
 
 		// If we already calculated on session return (if we are not calling by IP & if cache mode (sessions) is turned on)
-		if( $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) ){
-			$this->user_data[$this->cache_key] = new GeotRecord(unserialize( $_SESSION['geot_data'] ) );
-			return $this->user_data[$this->cache_key];
-		}
+		if( $this->opts['cache_mode'] && !empty ( $_SESSION['geot_data'] ) )
+			return $this->user_data[$this->cache_key] = new GeotRecord(unserialize( $_SESSION['geot_data'] ) );
+
 
 		// check for crawlers
 		$CD = new CrawlerDetect();
@@ -100,7 +99,6 @@ class GeotargetingWP{
 			]);
 		} catch ( RequestException $e) {
 			if ($e->hasResponse()) {
-				echo Psr7\str($e->getResponse());
 				throw new GeotRequestException($e->getResponse());
 			}
 		}
@@ -189,6 +187,8 @@ class GeotargetingWP{
 	 */
 	private function validateResponse( $res ) {
 		$code = $res->getStatusCode();
+		if( $code != '200')
+			$this->user_data[$this->cache_key] = ''; // clear cache for next responses
 		switch ($code) {
 			case '404':
 				throw new AddressNotFoundException((string)$res->getBody());
