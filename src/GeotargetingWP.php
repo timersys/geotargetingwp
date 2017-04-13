@@ -22,6 +22,7 @@ class GeotargetingWP{
 	private $cache_key;
 
 	private $license;
+	private $api_secret;
 
 	private $user_data;
 	/**
@@ -45,7 +46,6 @@ class GeotargetingWP{
 		$this->license = $acces_token;
 		$this->ip = getUserIP();
 		$this->set_defaults($args);
-
 	}
 
 	/**
@@ -91,12 +91,8 @@ class GeotargetingWP{
 
 		// time to call api
 		try{
-			$res = self::client()->request('GET', 'data', [
-				'query' => [
-					'ip' => $this->ip,
-					'license' => $this->license,
-				]
-			]);
+			$request_params = $this->generateRequestParams();
+			$res = self::client()->request('GET', 'data', $request_params);
 		} catch ( RequestException $e) {
 			if ($e->hasResponse()) {
 				throw new GeotRequestException($e->getResponse());
@@ -118,6 +114,7 @@ class GeotargetingWP{
 			'cache_mode'        => false, // cache mode turned on by default
 			'debug_mode'        => false, // similar to disable sessions but also invalidates cookies
 			'bots_country'      => '', // a default country to return if a bot is detected
+			'api_secret'        => '', // a default country to return if a bot is detected
 			'cookie_name'       => 'geot_cookie' // cookie_name to store country iso code
 		];
 
@@ -265,7 +262,8 @@ class GeotargetingWP{
 				'base_uri' => self::api_url(),
 				'http_errors' => false,
 				'headers' => [
-					'Content-Type' => 'application/json'
+					'Content-Type' => 'application/json',
+					'Geot-Nonce'   => mt_rand(),
 				]
 			]
 		);
@@ -277,5 +275,26 @@ class GeotargetingWP{
 	 */
 	public static function api_url() {
 		return env('GEOT_ENDPOINT','https://geotargetingwp.com/api/v1/');
+	}
+
+	/**
+	 * Generates signature
+	 * @return array
+	 */
+	private function generateRequestParams() {
+		$request_params = [
+			'query' => [
+				'ip'        => $this->ip,
+				'license'   => $this->license,
+			],
+			'headers' => [
+				'Geot-Nonce'  => base64_encode(makeRandomString()),
+				'Geot-Origin' => $_SERVER['HTTP_HOST']
+			]
+		];
+
+		$base_string = json_encode($request_params);
+		$request_params['query']['signature'] = hash_hmac('sha256',$base_string, $this->opts['api_secret']);
+		return $request_params;
 	}
 }
