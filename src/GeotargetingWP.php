@@ -184,8 +184,6 @@ class GeotargetingWP{
 	 */
 	private function validateResponse( $res ) {
 		$code = $res->getStatusCode();
-		if( $code != '200')
-			$this->user_data[$this->cache_key] = ''; // clear cache for next responses
 		switch ($code) {
 			case '404':
 				throw new AddressNotFoundException((string)$res->getBody());
