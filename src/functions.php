@@ -20,7 +20,7 @@ function getUserIP() {
 	// Clouways
 	$ip = isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $ip;
 	// get varnish first ip
-	$ip = strstr( $ip, ',') === false ? $ip : strstr( $ip, ',');
+	$ip = strstr( $ip, ',') === false ? $ip : strstr( $ip, ',', true);
 
 	return $ip;
 }
