@@ -1,7 +1,7 @@
 <?php
 use Dotenv\Dotenv;
 // load env file if exist
-if( file_exists(dirname(__DIR__).'.env') ) {
+if( file_exists(dirname(__DIR__).'/.env') ) {
 	$dotenv = new Dotenv(dirname(__DIR__));
 	$dotenv->load();
 }
