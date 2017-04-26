@@ -115,7 +115,7 @@ class GeotargetingWP{
 			'debug_mode'        => false, // similar to disable sessions but also invalidates cookies
 			'bots_country'      => '', // a default country to return if a bot is detected
 			'api_secret'        => '', // a default country to return if a bot is detected
-			'cookie_name'       => 'geot_cookie' // cookie_name to store country iso code
+			'cookie_name'       => 'geot_country' // cookie_name to store country iso code
 		];
 
 		foreach ($args as $key => $value )
@@ -130,7 +130,7 @@ class GeotargetingWP{
 		if( isset( $_GET['geot_state'] ) ) {
 			$state = new stdClass;
 			$state->name = esc_attr( $_GET['geot_state'] );
-			$state->isoCode = isset( $_GET['geot_state_code'] ) ? esc_attr( $_GET['geot_state_code'] ) : '';
+			$state->iso_code = isset( $_GET['geot_state_code'] ) ? esc_attr( $_GET['geot_state_code'] ) : '';
 		}
 
 		$this->user_data = array(
