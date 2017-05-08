@@ -183,6 +183,9 @@ class GeotargetingWP{
 	 * @throws OutofCreditsException
 	 */
 	private function validateResponse( $res ) {
+		if( null === $res )
+			throw new OutofCreditsException((string)$res->getBody());
+		
 		$code = $res->getStatusCode();
 		switch ($code) {
 			case '404':
@@ -226,7 +229,7 @@ class GeotargetingWP{
 		$response = self::client()->request('GET','check-license', [ 'query' => [ 'license' => $license ] ] );
 
 		if( $response->getStatusCode() != '200')
-			return ['error' => 'Something wrong happened'];
+			return json_encode(['error' => 'Something wrong happened']);
 
 		$response = (string)$response->getBody();
 		return $response;
