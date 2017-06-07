@@ -127,20 +127,31 @@ class GeotargetingWP{
 	 * Return debug data set in query vars
 	 */
 	private function debugData() {
-		if( isset( $_GET['geot_state'] ) ) {
-			$state = new stdClass;
-			$state->name = esc_attr( $_GET['geot_state'] );
-			$state->iso_code = isset( $_GET['geot_state_code'] ) ? esc_attr( $_GET['geot_state_code'] ) : '';
-		}
 
-		$this->user_data = array(
-			'country' => ( $_GET['geot_debug'] ),
-			'city'    => isset( $_GET['geot_city'] ) ? filter_var( $_GET['geot_city'], FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : '',
-			'zip'     => isset( $_GET['geot_zip'] ) ? filter_var( $_GET['geot_zip'], FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : '',
-			'state'   => isset( $state ) ? $state : '',
-		);
+		$state = new stdClass;
+		$state->names = isset( $_GET['geot_state'] ) ? [filter_var($_GET['geot_state'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)] : '';
+		$state->iso_code = isset( $_GET['geot_state_code'] ) ? filter_var($_GET['geot_state_code'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
 
-		return $this->user_data;
+		$country = new stdClass;
+
+		$country->names  =  [ filter_var($_GET['geot_debug'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)];
+		$continent = new stdClass;
+
+		$continent->names  =  isset($_GET['geot_continent']) ? [ filter_var($_GET['geot_continent'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)] : '';
+		$country->iso_code  = isset($_GET['geot_debug_iso']) ? filter_var($_GET['geot_debug_iso'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+		$city = new stdClass;
+
+		$city->names  = isset($_GET['geot_city']) ? [filter_var($_GET['geot_city'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)] : '';
+		$city->zip  = isset($_GET['geot_zip']) ? [filter_var($_GET['geot_zip'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)] : '';
+
+		$this->user_data[$this->cache_key] = new GeotRecord((object)[
+			'country' => $country,
+			'city'    => $city,
+			'state'   => $state,
+			'continent'   => $continent,
+		]);
+
+		return $this->user_data[$this->cache_key];
 	}
 
 
