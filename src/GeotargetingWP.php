@@ -38,10 +38,7 @@ class GeotargetingWP{
 	 *
 	 * @throws InvalidLicenseException
 	 */
-	public function __construct( $acces_token, $args = array() ) {
-
-		if( empty( $acces_token ) )
-			throw new InvalidLicenseException('License is missing');
+	public function __construct( $acces_token = "", $args = array() ) {
 
 		$this->license = $acces_token;
 		$this->ip = getUserIP();
@@ -57,9 +54,13 @@ class GeotargetingWP{
 	 * @throws GeotRequestException
 	 */
 	public function getData( $ip = "" ){
+
 		if( ! empty( $ip ) )
 			$this->ip = $ip;
-		
+
+		if( empty( $this->license ) )
+			throw new InvalidLicenseException('License is missing');
+
 		$this->cache_key = md5( $this->ip );
 
 		if( ! empty ( $this->user_data[$this->cache_key] ) )
