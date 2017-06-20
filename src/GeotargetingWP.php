@@ -300,13 +300,13 @@ class GeotargetingWP{
 				'license'   => $this->license,
 			],
 			'headers' => [
-				'Geot-Nonce'  => base64_encode(makeRandomString()),
+				'Geot-Nonce'  => urlencode(base64_encode(makeRandomString())),
 				'Geot-Origin' => $_SERVER['HTTP_HOST']
 			]
 		];
 
 		$base_string = json_encode($request_params);
-		$request_params['query']['signature'] = hash_hmac('sha256',$base_string, $this->opts['api_secret']);
+		$request_params['query']['signature'] = urlencode(hash_hmac('sha256',$base_string, $this->opts['api_secret']));
 		return $request_params;
 	}
 }
