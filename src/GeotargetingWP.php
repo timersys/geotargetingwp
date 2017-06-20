@@ -69,7 +69,7 @@ class GeotargetingWP{
 		$this->initUserData();
 
 		// Start sessions if needed
-		if( is_session_started() === FALSE && $this->opts['cache_mode'] )
+		if( is_session_started() === FALSE && $this->opts['cache_mode'] && ! ( isset($_GET['page']) && 'geot-debug-data' == $_GET['page'] ) )
 			session_start();
 
 		// Easy debug
@@ -118,10 +118,13 @@ class GeotargetingWP{
 			'api_secret'        => '', // a default country to return if a bot is detected
 			'cookie_name'       => 'geot_country' // cookie_name to store country iso code
 		];
-
-		foreach ($args as $key => $value )
-			if ( isset( $this->opts[$key] ) )
-				$this->opts[$key] = $value;
+		if( !empty($args) ) {
+			foreach ( $args as $key => $value ) {
+				if ( isset( $this->opts[ $key ] ) ) {
+					$this->opts[ $key ] = $value;
+				}
+			}
+		}
 	}
 
 	/**
