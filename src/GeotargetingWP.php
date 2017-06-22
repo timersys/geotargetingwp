@@ -1,5 +1,6 @@
 <?php namespace GeotWP;
 use GeotWP\Exception\AddressNotFoundException;
+use GeotWP\Exception\GeotException;
 use GeotWP\Exception\GeotRequestException;
 use GeotWP\Exception\InvalidIPException;
 use GeotWP\Exception\InvalidLicenseException;
@@ -193,6 +194,7 @@ class GeotargetingWP{
 	 * @param $res
 	 *
 	 * @throws AddressNotFoundException
+	 * @throws GeotException
 	 * @throws InvalidIPException
 	 * @throws InvalidLicenseException
 	 * @throws OutofCreditsException
@@ -212,7 +214,9 @@ class GeotargetingWP{
 			case '403':
 				throw new OutofCreditsException((string)$res->getBody());
 			case '200':
+				break;
 			default:
+				throw new GeotException((string)$res->getBody());
 				break;
 		}
 	}
