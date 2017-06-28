@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
+use MaxMind\Db\Reader;
 use stdClass;
 
 class GeotargetingWP{
@@ -90,6 +91,11 @@ class GeotargetingWP{
 		$CD = new CrawlerDetect();
 		if( $CD->isCrawler() && ! empty( $this->opts['bots_country'] ) )
 			return $this->setUserData('country' , 'iso_code', $this->opts['bots_country']);
+
+		// maxmind ?
+		if( isset($this->opts['maxmind'] ) && $this->opts['maxmind'] ){
+			$res = $this->maxmind();
+		}
 
 		// time to call api
 		try{
@@ -316,5 +322,16 @@ class GeotargetingWP{
 		$base_string = json_encode($request_params);
 		$request_params['query']['signature'] = urlencode(hash_hmac('sha256',$base_string, $this->opts['api_secret']));
 		return $request_params;
+	}
+
+	private function maxmind() {
+
+		$reader = new Reader($this->opts['maxmind_db']);
+		$record = $reader->get($this->ip);
+		echo '<pre>';
+		var_dump($record);
+		echo '</pre>';
+		die();
+		$reader->close();
 	}
 }

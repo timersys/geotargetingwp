@@ -14,7 +14,9 @@
 		"php": ">=5.5",
         "guzzlehttp/guzzle": "~6.0",
         "jaybizzle/crawler-detect" :"1.*",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "^2.4",
+        "ip2location/ip2location-php": "8.*",
+        "maxmind-db/reader": "^1.1"
     },
 	"require-dev": {
 		"phpunit/phpunit": "5.2.*"
