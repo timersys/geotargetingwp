@@ -61,7 +61,7 @@ class GeotargetingWP{
 			$this->ip = $ip;
 
 		if( empty( $this->license ) )
-			throw new InvalidLicenseException('License is missing');
+			throw new InvalidLicenseException(json_encode(['error'=>'License is missing']));
 
 		$this->cache_key = md5( $this->ip );
 
