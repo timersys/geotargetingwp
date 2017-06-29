@@ -123,7 +123,11 @@ class GeotargetingWP{
 			'debug_mode'        => false, // similar to disable sessions but also invalidates cookies
 			'bots_country'      => '', // a default country to return if a bot is detected
 			'api_secret'        => '', // a default country to return if a bot is detected
-			'cookie_name'       => 'geot_country' // cookie_name to store country iso code
+			'cookie_name'       => 'geot_country', // cookie_name to store country iso code
+			'maxmind'           => 0, // check if maxmind is enabled
+			'maxmind_db'        => '' // path to db
+
+
 		];
 		if( !empty($args) ) {
 			foreach ( $args as $key => $value ) {
