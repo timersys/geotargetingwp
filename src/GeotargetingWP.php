@@ -6,6 +6,7 @@ use GeotWP\Exception\InvalidIPException;
 use GeotWP\Exception\InvalidLicenseException;
 use GeotWP\Exception\OutofCreditsException;
 use GeotWP\Record\GeotRecord;
+use GeotWP\Record\RecordConverter;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
@@ -44,6 +45,7 @@ class GeotargetingWP{
 
 		$this->license = $acces_token;
 		$this->ip = getUserIP();
+		require_once dirname(dirname(__FILE__)).'/vendor/autoload.php';
 		$this->set_defaults($args);
 	}
 
@@ -54,6 +56,7 @@ class GeotargetingWP{
 	 *
 	 * @return mixed
 	 * @throws GeotRequestException
+	 * @throws InvalidLicenseException
 	 */
 	public function getData( $ip = "" ){
 
@@ -94,7 +97,7 @@ class GeotargetingWP{
 
 		// maxmind ?
 		if( isset($this->opts['maxmind'] ) && $this->opts['maxmind'] ){
-			$res = $this->maxmind();
+			return $this->maxmind();
 		}
 
 		// time to call api
@@ -239,7 +242,13 @@ class GeotargetingWP{
 	 * @return GeotRecord
 	 */
 	private function cleanResponse( $res ) {
-		$response                           = json_decode((string)$res->getBody());
+		// maxmind
+		$response_string = $res;
+		// this is coming from API
+		if( method_exists($res,'getBody') )
+			$response_string = (string)$res->getBody();
+
+		$response  = json_decode($response_string);
 
 		if ( $this->opts['cache_mode'] )
 			$_SESSION['geot_data'] = serialize( $response );
@@ -331,11 +340,18 @@ class GeotargetingWP{
 	private function maxmind() {
 
 		$reader = new Reader($this->opts['maxmind_db']);
-		$record = $reader->get($this->ip);
-		echo '<pre>';
-		var_dump($record);
-		echo '</pre>';
-		die();
-		$reader->close();
+		try{
+			$record = $reader->get($this->ip);
+			if( empty($record) )
+				throw new AddressNotFoundException('Ip Address not found');
+			$reader->close();
+			return $this->cleanResponse(RecordConverter::maxmindRecord($record));
+		} catch( AddressNotFoundException $e) {
+			throw new AddressNotFoundException((string)$e->getMessage());
+		} catch( \Exception $e) {
+			throw new GeotException($e->getMessage());
+		}
+
+
 	}
 }
