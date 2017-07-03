@@ -1,7 +1,6 @@
 <?php
 
 namespace GeotWP\Record;
-use JsonSerializable;
 
 /**
  * Holds the record that API will return
@@ -9,7 +8,7 @@ use JsonSerializable;
  * @property  city
  * @package app\Http
  */
-class RecordConverter implements JsonSerializable{
+class RecordConverter{
 	protected static $geot_record;
 	protected $city;
 	protected $continent;
@@ -18,7 +17,7 @@ class RecordConverter implements JsonSerializable{
 
 	public static function maxmindRecord( $record ) {
 		if( isset( $record->error ) )
-			return $record;
+			return json_encode($record);
 
 		self::$geot_record = [];
 		self::$geot_record['city']['names']         = isset($record['city']) && isset($record['city']['names'] ) ? $record['city']['names'] : '';
@@ -33,7 +32,20 @@ class RecordConverter implements JsonSerializable{
 		return   json_encode(self::$geot_record);
 	}
 
-	public function jsonSerialize() {
-		return self::$geot_record;
+	public static function ip2locationRecord( $record ){
+		if( isset( $record['error'] ) )
+			return json_encode($record);
+
+		self::$geot_record = [];
+		self::$geot_record['city']['names']         = isset($record['cityName']) ? [ 'en' => $record['cityName'] ] : '';
+		self::$geot_record['city']['zip']           = isset($record['zipCode'])  ? $record['zipCode'] : '';
+		self::$geot_record['continent']['names']    = '';
+		self::$geot_record['continent']['iso_code'] = '';
+		self::$geot_record['country']['iso_code']   = isset($record['countryCode']) ? $record['countryCode'] : '';
+		self::$geot_record['country']['names']      = isset($record['countryName']) ? [ 'en' => $record['countryName'] ] : '';
+		self::$geot_record['state']['iso_code']     = '';
+		self::$geot_record['state']['names']        = isset($record['regionName']) ? [ 'en' => $record['regionName'] ] : '';
+
+		return   json_encode(self::$geot_record);
 	}
 }

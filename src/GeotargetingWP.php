@@ -10,6 +10,7 @@ use GeotWP\Record\RecordConverter;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
+use IP2Location\Database;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use MaxMind\Db\Reader;
 use stdClass;
@@ -99,6 +100,10 @@ class GeotargetingWP{
 		if( isset($this->opts['maxmind'] ) && $this->opts['maxmind'] ){
 			return $this->maxmind();
 		}
+		// ip2location ?
+		if( isset($this->opts['ip2location'] ) && $this->opts['ip2location'] ){
+			return $this->ip2location();
+		}
 
 		// time to call api
 		try{
@@ -109,7 +114,6 @@ class GeotargetingWP{
 				throw new GeotRequestException($e->getResponse());
 			}
 		}
-
 		$this->validateResponse( $res );
 		return $this->cleanResponse( $res );
 	}
@@ -117,6 +121,9 @@ class GeotargetingWP{
 
 	/**
 	 * Set some default options for the class
+	 * Most of these params are passed on class construction because
+	 * we don't have access to wordpress filters or similar functions here
+	 * as we want to keep GeotWP class separate from WP
 	 * @param $args
 	 */
 	private function set_defaults( $args ) {
@@ -128,7 +135,10 @@ class GeotargetingWP{
 			'api_secret'        => '', // a default country to return if a bot is detected
 			'cookie_name'       => 'geot_country', // cookie_name to store country iso code
 			'maxmind'           => 0, // check if maxmind is enabled
-			'maxmind_db'        => '' // path to db
+			'maxmind_db'        => '', // path to db
+			'ip2location'       => 0, // check if ip2location is enabled
+			'ip2location_db'    => '', // path to db
+			'ip2location_method'=> '', // wheter we use io disk or memory for lookups
 
 
 		];
@@ -337,6 +347,12 @@ class GeotargetingWP{
 		return $request_params;
 	}
 
+	/**
+	 * Use maxmind local db
+	 * @return GeotRecord
+	 * @throws AddressNotFoundException
+	 * @throws GeotException
+	 */
 	private function maxmind() {
 
 		$reader = new Reader($this->opts['maxmind_db']);
@@ -353,5 +369,15 @@ class GeotargetingWP{
 		}
 
 
+	}
+
+	private function ip2location() {
+		$db = new Database($this->opts['ip2location_db'], $this->opts['ip2location_method']);
+		try{
+			$record = $db->lookup($this->ip, Database::ALL);
+			return $this->cleanResponse(RecordConverter::ip2locationRecord($record));
+		} catch( \Exception $e) {
+			throw new GeotException($e->getMessage());
+		}
 	}
 }
