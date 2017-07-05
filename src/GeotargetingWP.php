@@ -46,7 +46,6 @@ class GeotargetingWP{
 
 		$this->license = $acces_token;
 		$this->ip = getUserIP();
-		require_once dirname(dirname(__FILE__)).'/vendor/autoload.php';
 		$this->set_defaults($args);
 	}
 
@@ -327,8 +326,7 @@ class GeotargetingWP{
 				'base_uri' => self::api_url(),
 				'http_errors' => false,
 				'headers' => [
-					'Content-Type' => 'application/json',
-					'Geot-Nonce'   => mt_rand(),
+					'Content-Type' => 'application/json'
 				]
 			]
 		);
