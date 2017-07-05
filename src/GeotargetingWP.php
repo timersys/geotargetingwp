@@ -284,6 +284,22 @@ class GeotargetingWP{
 	}
 
 	/**
+	 * Helper function that let users check if license is valid
+	 * @param $license
+	 *
+	 * @return array|mixed|\Psr\Http\Message\ResponseInterface
+	 */
+	public static function checkSubscription( $license ) {
+		$response = self::client()->request('GET','check-subscription', [ 'query' => [ 'license' => $license ] ] );
+
+		if( $response->getStatusCode() != '200')
+			return json_encode(['error' => 'Something wrong happened']);
+
+		$response = (string)$response->getBody();
+		return $response;
+	}
+
+	/**
 	 * Helper function that get cities for given country
 	 *
 	 * @param $iso_code
