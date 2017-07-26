@@ -107,7 +107,7 @@ class GeotargetingWP{
 		// time to call api
 		try{
 			$request_params = $this->generateRequestParams();
-			$res = self::client()->request('GET', 'data', $request_params);
+			$res = self::client()->get( self::api_url() . 'data', $request_params);
 		} catch ( RequestException $e) {
 			if ($e->hasResponse()) {
 				throw new GeotRequestException($e->getResponse());
@@ -273,7 +273,7 @@ class GeotargetingWP{
 	 * @return array|mixed|\Psr\Http\Message\ResponseInterface
 	 */
 	public static function checkLicense( $license ) {
-		$response = self::client()->request('GET','check-license', [ 'query' => [ 'license' => $license ] ] );
+		$response = self::client()->get( self::api_url() .'check-license', [ 'query' => [ 'license' => $license ] ] );
 
 		if( $response->getStatusCode() != '200')
 			return json_encode(['error' => 'Something wrong happened']);
@@ -289,7 +289,7 @@ class GeotargetingWP{
 	 * @return array|mixed|\Psr\Http\Message\ResponseInterface
 	 */
 	public static function checkSubscription( $license ) {
-		$response = self::client()->request('GET','check-subscription', [ 'query' => [ 'license' => $license ] ] );
+		$response = self::client()->get( self::api_url() .'check-subscription', [ 'query' => [ 'license' => $license ] ] );
 
 		if( $response->getStatusCode() != '200')
 			return json_encode(['error' => 'Something wrong happened']);
@@ -307,7 +307,7 @@ class GeotargetingWP{
 	 *
 	 */
 	public static function getCities( $iso_code ) {
-		$response = self::client()->request('GET','cities', [ 'query' => [ 'iso_code' => $iso_code ] ] );
+		$response = self::client()->get( self::api_url() .'cities', [ 'query' => [ 'iso_code' => $iso_code ] ] );
 
 		if( $response->getStatusCode() != '200')
 			return ['error' => 'Something wrong happened'];
