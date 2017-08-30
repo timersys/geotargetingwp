@@ -92,8 +92,8 @@ class GeotargetingWP{
 
 		// check for crawlers
 		$CD = new CrawlerDetect();
-		if( $CD->isCrawler() && ! empty( $this->opts['bots_country'] ) )
-			return $this->setUserData('country' , 'iso_code', $this->opts['bots_country']);
+		if( $CD->isCrawler() )
+			return $this->setUserData('country' , 'iso_code', !empty($this->opts['bots_country'])? $this->opts['bots_country'] :'US');
 
 		// maxmind ?
 		if( isset($this->opts['maxmind'] ) && $this->opts['maxmind'] ){
