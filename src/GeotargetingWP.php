@@ -223,7 +223,7 @@ class GeotargetingWP{
 	 */
 	private function validateResponse( $res ) {
 		if( null === $res )
-			throw new OutofCreditsException((string)$res->getBody());
+			throw new OutofCreditsException(json_encode(['error' => 'You run out of credits']));
 		
 		$code = $res->getStatusCode();
 		switch ($code) {
