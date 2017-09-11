@@ -276,7 +276,7 @@ class GeotargetingWP{
 		$response = self::client()->get( self::api_url() .'check-license', [ 'query' => [ 'license' => $license ] ] );
 
 		if( $response->getStatusCode() != '200')
-			return json_encode(['error' => 'Something wrong happened']);
+			return json_encode(['error' => 'Something wrong happened' . strip_tags((string) $response->getBody())]);
 
 		$response = (string)$response->getBody();
 		return $response;
@@ -292,7 +292,7 @@ class GeotargetingWP{
 		$response = self::client()->get( self::api_url() .'check-subscription', [ 'query' => [ 'license' => $license ] ] );
 
 		if( $response->getStatusCode() != '200')
-			return json_encode(['error' => 'Something wrong happened']);
+			return json_encode(['error' => 'Something wrong happened'. strip_tags((string) $response->getBody())]);
 
 		$response = (string)$response->getBody();
 		return $response;
