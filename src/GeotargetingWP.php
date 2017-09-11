@@ -58,15 +58,15 @@ class GeotargetingWP{
 	 * @throws GeotRequestException
 	 * @throws InvalidLicenseException
 	 */
-	public function getData( $ip = "" ){
+	public function getData( $ip = "", $force ){
 
 		if( ! empty( $ip ) )
 			$this->ip = $ip;
 
 		if( empty( $this->license ) )
 			throw new InvalidLicenseException(json_encode(['error'=>'License is missing']));
+		$this->cache_key = md5( $this->ip . $ip );
 
-		$this->cache_key = md5( $this->ip );
 
 		if( ! empty ( $this->user_data[$this->cache_key] ) )
 			return $this->user_data[$this->cache_key];
@@ -81,8 +81,8 @@ class GeotargetingWP{
 		if( isset( $_GET['geot_debug'] ) )
 			return $this->debugData();
 
-		// If user set cookie and not in debug mode
-		if(  ! $this->opts['debug_mode']  &&  ! empty( $_COOKIE[$this->opts['cookie_name']] ) )
+		// If user set cookie and not in debug mode. If we pass ip we are forcing to use ip instead of cookies. Eg in dropdown widget
+		if(  ! $this->opts['debug_mode']  &&  ! empty( $_COOKIE[$this->opts['cookie_name']] ) && ! $force )
 			return $this->setUserData('country' , 'iso_code', $_COOKIE[$this->opts['cookie_name']] );
 
 		// If we already calculated on session return (if we are not calling by IP & if cache mode (sessions) is turned on)
