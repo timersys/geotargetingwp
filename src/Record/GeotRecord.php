@@ -7,7 +7,8 @@ class GeotRecord {
 		'city',
 		'country',
 		'continent',
-		'state'
+		'state',
+		'geolocation'
 	];
 	/**
 	 * Record constructor.
