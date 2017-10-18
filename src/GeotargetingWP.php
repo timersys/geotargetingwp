@@ -95,6 +95,11 @@ class GeotargetingWP{
 		if( $CD->isCrawler() )
 			return $this->setUserData('country' , 'iso_code', !empty($this->opts['bots_country'])? $this->opts['bots_country'] :'US');
 
+		// WP Engine ?
+		if( getenv( 'HTTP_GEOIP_COUNTRY_CODE' ) !== false ){
+			return $this->wpengine();
+		}
+
 		// maxmind ?
 		if( isset($this->opts['maxmind'] ) && $this->opts['maxmind'] ){
 			return $this->maxmind();
@@ -385,11 +390,29 @@ class GeotargetingWP{
 
 	}
 
+	/**
+	 * Use ip2location database
+	 * @return GeotRecord
+	 * @throws GeotException
+	 */
 	private function ip2location() {
 		$db = new Database($this->opts['ip2location_db'], $this->opts['ip2location_method']);
 		try{
 			$record = $db->lookup($this->ip, Database::ALL);
 			return $this->cleanResponse(RecordConverter::ip2locationRecord($record));
+		} catch( \Exception $e) {
+			throw new GeotException($e->getMessage());
+		}
+	}
+
+	/**
+	 * Use WpEngine variables (enterprise plans only)
+	 * @return GeotRecord
+	 * @throws GeotException
+	 */
+	private function wpengine() {
+		try{
+			return $this->cleanResponse(RecordConverter::wpEngine());
 		} catch( \Exception $e) {
 			throw new GeotException($e->getMessage());
 		}

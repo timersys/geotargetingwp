@@ -15,6 +15,12 @@ class RecordConverter{
 	protected $country;
 	protected $state;
 
+	/**
+	 * Normalize Maxmind to match our API results
+	 * @param $record
+	 *
+	 * @return string
+	 */
 	public static function maxmindRecord( $record ) {
 		if( isset( $record->error ) )
 			return json_encode($record);
@@ -28,23 +34,55 @@ class RecordConverter{
 		self::$geot_record['country']['names']      = isset($record['country']) && isset($record['country']['names'] ) ? $record['country']['names'] : '';
 		self::$geot_record['state']['iso_code']     = isset($record['subdivisions']) && isset($record['subdivisions'][0]) && isset($record['subdivisions'][0]['iso_code']) ? $record['subdivisions'][0]['iso_code']: '';
 		self::$geot_record['state']['names']        = isset($record['subdivisions']) && isset($record['subdivisions'][0]) && isset($record['subdivisions'][0]['names']) ? $record['subdivisions'][0]['names']: '';
+		self::$geot_record['geolocation']['latitude']       = isset($record['location']) && isset($record['location']['latitude']) ? $record['location']['latitude'] : '';
+		self::$geot_record['geolocation']['longitude']      = isset($record['location']) && isset($record['location']['longitude']) ? $record['location']['longitude'] : '';
+		self::$geot_record['geolocation']['accuracy_radius']= isset($record['location']) && isset($record['location']['accuracy_radius']) ? $record['location']['accuracy_radius'] : '';
+		self::$geot_record['geolocation']['time_zone']      = isset($record['location']) && isset($record['location']['time_zone']) ? $record['location']['time_zone'] : '';
 
 		return   json_encode(self::$geot_record);
 	}
 
+	/**
+	 * Normalize Ip2location to match our api Results
+	 * @param $record
+	 *
+	 * @return string
+	 */
 	public static function ip2locationRecord( $record ){
 		if( isset( $record['error'] ) )
 			return json_encode($record);
 
 		self::$geot_record = [];
-		self::$geot_record['city']['names']         = isset($record['cityName']) ? [ 'en' => $record['cityName'] ] : '';
-		self::$geot_record['city']['zip']           = isset($record['zipCode'])  ? $record['zipCode'] : '';
-		self::$geot_record['continent']['names']    = '';
-		self::$geot_record['continent']['iso_code'] = '';
-		self::$geot_record['country']['iso_code']   = isset($record['countryCode']) ? $record['countryCode'] : '';
-		self::$geot_record['country']['names']      = isset($record['countryName']) ? [ 'en' => $record['countryName'] ] : '';
-		self::$geot_record['state']['iso_code']     = '';
-		self::$geot_record['state']['names']        = isset($record['regionName']) ? [ 'en' => $record['regionName'] ] : '';
+		self::$geot_record['city']['names']                 = isset($record['cityName']) ? [ 'en' => $record['cityName'] ] : '';
+		self::$geot_record['city']['zip']                   = isset($record['zipCode'])  ? $record['zipCode'] : '';
+		self::$geot_record['continent']['names']            = '';
+		self::$geot_record['continent']['iso_code']         = '';
+		self::$geot_record['country']['iso_code']           = isset($record['countryCode']) ? $record['countryCode'] : '';
+		self::$geot_record['country']['names']              = isset($record['countryName']) ? [ 'en' => $record['countryName'] ] : '';
+		self::$geot_record['state']['iso_code']             = '';
+		self::$geot_record['state']['names']                = isset($record['regionName']) ? [ 'en' => $record['regionName'] ] : '';
+		self::$geot_record['geolocation']['latitude']       = $record['latitude'] ?: '';
+		self::$geot_record['geolocation']['longitude']      = $record['longitude'] ?: '';
+		self::$geot_record['geolocation']['accuracy_radius']= $record['accuracyRadius'] ?: '';
+		self::$geot_record['geolocation']['time_zone']      = $record['timeZone'] ?: '';
+
+		return   json_encode(self::$geot_record);
+	}
+
+	public static function wpEngine(){
+		self::$geot_record = [];
+		self::$geot_record['city']['names']                 = getenv( 'HTTP_GEOIP_CITY' ) ? ['en' => getenv( 'HTTP_GEOIP_CITY' ) ] : '';
+		self::$geot_record['city']['zip']                   = getenv( 'HTTP_GEOIP_POSTAL_CODE' ) ?: '';
+		self::$geot_record['continent']['names']            = '';
+		self::$geot_record['continent']['iso_code']         = '';
+		self::$geot_record['country']['iso_code']           = getenv( 'HTTP_GEOIP_COUNTRY_CODE' ) ?: '';
+		self::$geot_record['country']['names']              = getenv( 'HTTP_GEOIP_COUNTRY_NAME' ) ? ['en' => getenv( 'HTTP_GEOIP_COUNTRY_NAME' ) ] : '';
+		self::$geot_record['state']['iso_code']             = getenv( 'HTTP_GEOIP_AREA_CODE' ) ?: '';
+		self::$geot_record['state']['names']                = getenv( 'HTTP_GEOIP_REGION' ) ? ['en' => getenv( 'HTTP_GEOIP_REGION' ) ] : '';
+		self::$geot_record['geolocation']['latitude']       = getenv( 'HTTP_GEOIP_LATITUDE' ) ?: '';
+		self::$geot_record['geolocation']['longitude']      = getenv( 'HTTP_GEOIP_LONGITUDE' ) ?: '';
+		self::$geot_record['geolocation']['accuracy_radius']= '';
+		self::$geot_record['geolocation']['time_zone']      = '';
 
 		return   json_encode(self::$geot_record);
 	}
