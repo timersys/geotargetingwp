@@ -174,13 +174,20 @@ class GeotargetingWP{
 		$city = new stdClass;
 
 		$city->names  = isset($_GET['geot_city']) ? [filter_var($_GET['geot_city'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)] : '';
-		$city->zip  = isset($_GET['geot_zip']) ? [filter_var($_GET['geot_zip'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)] : '';
+		$city->zip  = isset($_GET['geot_zip']) ? filter_var($_GET['geot_zip'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+		$geolocation = new stdClass();
+		$geolocation->accuracy_radius = '';
+		$geolocation->longitude = '';
+		$geolocation->latitude = '';
+		$geolocation->time_zone = '';
 
 		$this->user_data[$this->cache_key] = new GeotRecord((object)[
 			'country' => $country,
 			'city'    => $city,
 			'state'   => $state,
 			'continent'   => $continent,
+			'geolocation'   => $geolocation,
 		]);
 
 		return $this->user_data[$this->cache_key];
