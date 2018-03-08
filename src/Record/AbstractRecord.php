@@ -57,4 +57,20 @@ abstract class AbstractRecord {
 		return isset( $this->data->names->{$this->default_locale} ) ? $this->data->names->{$this->default_locale} : $this->data->names[0];
 	}
 
+    /**
+     * @return array
+     */
+    public function getLocales() {
+        return $this->locales;
+    }
+
+    /**
+     * @param string $default_locale
+     */
+    public function setDefaultLocale($default_locale) {
+        if (! in_array($default_locale, $this->locales) )
+            $default_locale = 'en';
+        $this->default_locale = $default_locale;
+    }
+
 }
