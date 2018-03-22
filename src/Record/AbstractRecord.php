@@ -54,7 +54,14 @@ abstract class AbstractRecord {
 	public function name() {
 		if( empty($this->data->names) )
 			return null;
-		return isset( $this->data->names->{$this->default_locale} ) ? $this->data->names->{$this->default_locale} : $this->data->names[0];
+		// check if we have result for locale
+		if ( isset( $this->data->names->{$this->default_locale} ) )
+            return $this->data->names->{$this->default_locale};
+        // otherwise fallback to english
+		if ( isset( $this->data->names->en ) )
+            return $this->data->names->en;
+        // none of the above, return first result
+        return $this->data->names[0];
 	}
 
     /**
