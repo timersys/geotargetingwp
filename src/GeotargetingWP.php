@@ -134,7 +134,7 @@ class GeotargetingWP{
 	 * @return array|mixed|\Psr\Http\Message\ResponseInterface
 	 */
 	public static function checkSubscription( $license ) {
-		$response = self::client()->get( self::api_url() .'check-subscription', [ 'query' => [ 'license' => $license ] ] );
+		$response = self::client()->get( self::api_url() .'check-subscription', [ 'query' => [ 'license' => $license,  'Geot-Origin' => $_SERVER['HTTP_HOST'] ] ] );
 
 		if( $response->getStatusCode() != '200')
 			return json_encode(['error' => 'Something wrong happened'. strip_tags((string) $response->getBody())]);
