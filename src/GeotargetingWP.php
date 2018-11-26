@@ -41,11 +41,18 @@ class GeotargetingWP{
 	 * @param string $ip
 	 *
 	 * @return mixed
+	 * @throws AddressNotFoundException
+	 * @throws GeotException
 	 * @throws GeotRequestException
+	 * @throws InvalidIPException
 	 * @throws InvalidLicenseException
+	 * @throws OutofCreditsException
 	 */
 	public function getData( $ip = "" ){
 		$this->ip = $ip;
+		if( empty( $this->ip ) ) {
+			throw new AddressNotFoundException(json_encode(['error' => 'No IP found for the user']));
+		}
 		// time to call api
 		try{
 			$request_params = $this->generateRequestParams();
