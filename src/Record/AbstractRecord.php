@@ -47,6 +47,20 @@ abstract class AbstractRecord {
 
 		return null;
 	}
+
+	/**
+	 * Custom implementation of isset
+	 * @param $name
+	 *
+	 * @return bool
+	 */
+	public function __isset( $name ) {
+		if( $name === 'name' ) {
+			return $this->name();
+		}
+		return isset( $this->data->$name );
+	}
+
 	/**
 	 * Return name in default locale
 	 * @return string
