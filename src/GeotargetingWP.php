@@ -17,7 +17,7 @@ use stdClass;
 
 class GeotargetingWP{
 
-	private $ip;
+	private $options;
 
 	private $license;
 	private $api_secret;
@@ -38,7 +38,7 @@ class GeotargetingWP{
 	/**
 	 * Main function that return User data
 	 *
-	 * @param string $ip
+	 * @param string $options
 	 *
 	 * @return mixed
 	 * @throws AddressNotFoundException
@@ -48,10 +48,12 @@ class GeotargetingWP{
 	 * @throws InvalidLicenseException
 	 * @throws OutofCreditsException
 	 */
-	public function getData( $ip = "" ){
-		$this->ip = $ip;
-		if( empty( $this->ip ) ) {
-			throw new AddressNotFoundException(json_encode(['error' => 'No IP found for the user']));
+	public function getData( $options = [] ){
+
+		$this->options = $options;
+
+		if( empty( $this->options ) || ! isset( $this->options['geolocation'] ) ) {
+			throw new AddressNotFoundException(json_encode(['error' => 'No options found for the user']));
 		}
 		// time to call api
 		try{
@@ -197,10 +199,12 @@ class GeotargetingWP{
 	 * @return array
 	 */
 	private function generateRequestParams() {
+
 		$request_params = [
 			'query' => [
-				'ip'        => $this->ip,
-				'license'   => $this->license,
+				'type'		=> $this->options['geolocation'],
+				'data'		=> $this->options['data'],
+				'license'	=> $this->license,
 			],
 			'headers' => [
 				'Geot-Nonce'  => urlencode(base64_encode(makeRandomString())),
