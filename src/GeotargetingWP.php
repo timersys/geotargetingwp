@@ -53,13 +53,17 @@ class GeotargetingWP{
 		$this->options = $options;
 
 		if( empty( $this->options ) || ! isset( $this->options['geolocation'] ) ) {
-			throw new AddressNotFoundException(json_encode(['error' => 'No options found for the user']));
+			throw new GeotRequestException(json_encode(['error' => 'No IP or coordinates set for user']));
 		}
 		// time to call api
 		try{
 			$request_params = $this->generateRequestParams();
 			$res = self::client()->get( self::api_url() . 'data', $request_params);
 		} catch ( RequestException $e) {
+			if ($e->hasResponse()) {
+				throw new GeotRequestException($e->getResponse());
+			}
+		} catch ( \Exception $e) {
 			if ($e->hasResponse()) {
 				throw new GeotRequestException($e->getResponse());
 			}
