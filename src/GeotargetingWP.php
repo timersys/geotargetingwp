@@ -59,14 +59,13 @@ class GeotargetingWP{
 		try{
 			$request_params = $this->generateRequestParams();
 			$res = self::client()->get( self::api_url() . 'data', $request_params);
+
 		} catch ( RequestException $e) {
 			if ($e->hasResponse()) {
 				throw new GeotRequestException($e->getResponse());
 			}
 		} catch ( \Exception $e) {
-			if ($e->hasResponse()) {
-				throw new GeotRequestException($e->getResponse());
-			}
+			throw new GeotRequestException($e->getMessage());
 		}
 		$this->validateResponse( $res );
 		return $this->cleanResponse( $res );
@@ -206,8 +205,8 @@ class GeotargetingWP{
 
 		$request_params = [
 			'query' => [
-				'type'		=> $this->options['geolocation'],
-				'data'		=> $this->options['data'],
+				'type'		=> $this->options['geolocation'], // by_ip|by_html5
+				'data'		=> $this->options['data'], // [ 'ip' => ''] || [ 'lat' => '', 'lng' => '' ]
 				'license'	=> $this->license,
 			],
 			'headers' => [
