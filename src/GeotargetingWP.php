@@ -177,6 +177,7 @@ class GeotargetingWP{
 			[
 				'base_uri' => self::api_url(),
 				'http_errors' => false,
+				'idn_conversion' => false,
 				'headers' => [
 					'Content-Type' => 'application/json'
 				]
