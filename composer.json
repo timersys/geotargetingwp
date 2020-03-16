@@ -12,12 +12,9 @@
     "type": "library",
     "require": {
 		"php": ">=5.5",
-        "guzzlehttp/guzzle": "dev-6.5-functions as 6.5.3",
+        "guzzlehttp/guzzle": "6.4.1",
         "vlucas/phpdotenv": "^2.4"
     },
-    "repositories": [
-        {"type": "vcs", "url": "git@github.com:GrahamCampbell/guzzle.git"}
-    ],
 	"require-dev": {
 		"phpunit/phpunit": "5.2.*"
     },
