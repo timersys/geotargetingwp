@@ -202,11 +202,9 @@ class GeotargetingWP{
 	 * @return array
 	 */
 	private function generateRequestParams() {
-
-		$request_params = [
+		$signature_params = [
 			'query' => [
-				'type'		=> $this->options['geolocation'], // by_ip|by_html5
-				'data'		=> $this->options['data'], // [ 'ip' => ''] || [ 'lat' => '', 'lng' => '' ]
+				'ip'        => $this->options['data']['ip'], // added for signature verification
 				'license'	=> $this->license,
 			],
 			'headers' => [
@@ -214,8 +212,16 @@ class GeotargetingWP{
 				'Geot-Origin' => $_SERVER['HTTP_HOST']
 			]
 		];
+		$request_params = array_merge($signature_params , [
+			'query' => [
+				'type'		=> $this->options['geolocation'], // by_ip|by_html5
+				'data'		=> $this->options['data'], // [ 'ip' => ''] || [ 'lat' => '', 'lng' => '' ]
+				'license'	=> $this->license,
+				'ip'        => $this->options['data']['ip'], // added for signature verification
+			]
+		] );
 
-		$base_string = json_encode($request_params);
+		$base_string = json_encode($signature_params);
 		$request_params['query']['signature'] = urlencode(hash_hmac('sha256',$base_string, $this->api_secret ));
 		return $request_params;
 	}
