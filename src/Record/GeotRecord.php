@@ -3,7 +3,7 @@ namespace GeotWP\Record;
 
 class GeotRecord {
 
-	private static $valid_records = [
+	public static $valid_records = [
 		'city',
 		'country',
 		'continent',

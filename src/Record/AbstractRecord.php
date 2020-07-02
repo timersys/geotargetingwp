@@ -8,7 +8,7 @@ namespace GeotWP\Record;
  */
 abstract class AbstractRecord {
 
-	private $data;
+	public $data;
 
 	/**
 	 * Valid locales
