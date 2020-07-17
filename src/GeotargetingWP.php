@@ -17,7 +17,7 @@ use stdClass;
 
 class GeotargetingWP{
 
-	private $options;
+	private $api_args;
 
 	private $license;
 	private $api_secret;
@@ -38,7 +38,7 @@ class GeotargetingWP{
 	/**
 	 * Main function that return User data
 	 *
-	 * @param string $options
+	 * @param array $api_args
 	 *
 	 * @return mixed
 	 * @throws AddressNotFoundException
@@ -48,11 +48,11 @@ class GeotargetingWP{
 	 * @throws InvalidLicenseException
 	 * @throws OutofCreditsException
 	 */
-	public function getData( $options = [] ){
+	public function getData( $api_args = [] ){
 
-		$this->options = $options;
+		$this->api_args = $api_args;
 
-		if( empty( $this->options ) || ! isset( $this->options['geolocation'] ) ) {
+		if( empty( $this->api_args ) || ! isset( $this->api_args['geolocation'] ) ) {
 			throw new GeotRequestException(json_encode(['error' => 'No IP or coordinates set for user']));
 		}
 		// time to call api
@@ -205,7 +205,7 @@ class GeotargetingWP{
 	private function generateRequestParams() {
 		$signature_params = [
 			'query' => [
-				'ip'        => $this->options['data']['ip'], // added for signature verification
+				'ip'        => $this->api_args['data']['ip'], // added for signature verification
 				'license'	=> $this->license,
 			],
 			'headers' => [
@@ -215,10 +215,10 @@ class GeotargetingWP{
 		];
 		$request_params = array_merge($signature_params , [
 			'query' => [
-				'type'		=> $this->options['geolocation'], // by_ip|by_html5
-				'data'		=> $this->options['data'], // [ 'ip' => ''] || [ 'lat' => '', 'lng' => '' ]
+				'type'		=> $this->api_args['geolocation'], // by_ip|by_html5
+				'data'		=> $this->api_args['data'], // [ 'ip' => ''] || [ 'lat' => '', 'lng' => '' ]
 				'license'	=> $this->license,
-				'ip'        => $this->options['data']['ip'], // added for signature verification
+				'ip'        => $this->api_args['data']['ip'], // added for signature verification
 			]
 		] );
 
